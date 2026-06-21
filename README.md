@@ -8,7 +8,7 @@
 
 A Model Context Protocol (MCP) server that lets AI assistants use Go's LSP (`gopls`) for navigation, diagnostics, testing, coverage, and more.
 
-> **TL;DR:** If you use Claude / Cursor / Copilot with Go, `mcp-gopls` gives the AI full LSP powers:
+> **TL;DR:** If you use Claude / Cursor / Copilot with Go, `mcp-gopls-plus` gives the AI full LSP powers:
 > go-to-definition, references, hover, completion, `go test`, coverage, `go mod tidy`, `govulncheck`, etc.
 
 ## Overview
@@ -39,14 +39,14 @@ The server communicates with [gopls](https://github.com/golang/tools/tree/master
 - **MCP extras**: resources (`resource://workspace/overview`, `resource://workspace/go.mod`) and prompts (`summarize_diagnostics`, `refactor_plan`)
 - **Progress streaming**: long-running commands emit `notifications/progress` events so clients can surface status updates
 
-### Feature comparison: `mcp-gopls` vs built-in `gopls` MCP
+### Feature comparison: mcp-gopls-plus vs built-in gopls MCP
 
 As of `gopls` v0.20.0, the built-in MCP server exposes these tools:
 `go_context`, `go_diagnostics`, `go_file_context`, `go_file_diagnostics`,
 `go_file_metadata`, `go_package_api`, `go_references`, `go_rename_symbol`,
 `go_search`, `go_symbol_references`, `go_workspace`, `go_vulncheck`.
 
-| Feature / capability | `mcp-gopls` (this project) | Built-in `gopls` MCP |
+| Feature / capability | mcp-gopls-plus (this project) | Built-in `gopls` MCP |
 |----------------------|----------------------------|----------------------|
 | Go-to-definition | Yes (`go_to_definition` tool) | No dedicated MCP tool (not in tool list) |
 | Find references | Yes (`find_references`) | Yes (`go_references`, `go_symbol_references`) |
@@ -68,7 +68,7 @@ As of `gopls` v0.20.0, the built-in MCP server exposes these tools:
 | Custom MCP prompts | Yes (`summarize_diagnostics`, `refactor_plan`) | Not exposed as MCP prompts (only model instructions) |
 | Model instructions shipped with server | No special mechanism (documented in README/docs) | Yes: `gopls mcp -instructions` prints usage workflows |
 
-If you want full LSP-like editing + tooling from MCP (definition, hover, completion, format, rename, code actions, go test, coverage, go mod tidy, module graph), mcp-gopls is strictly richer.
+If you want full LSP-like editing + tooling from MCP (definition, hover, completion, format, rename, code actions, go test, coverage, go mod tidy, module graph), mcp-gopls-plus is strictly richer.
 
 If you mostly want read-only/introspective tools (diagnostics, symbol search, references, package API, workspace/file context, vulncheck) with no extra binary, the built-in gopls MCP is enough.
 
@@ -80,7 +80,7 @@ If you mostly want read-only/introspective tools (diagnostics, symbol search, re
 ```bash
 .
 ├── cmd
-│   └── mcp-gopls        # Application entry point
+│   └── mcp-gopls-plus   # Application entry point
 ├── pkg
 │   ├── lsp             # LSP client to communicate with gopls
 │   │   ├── client      # LSP client implementation
@@ -100,7 +100,7 @@ go install github.com/ForeverSRC/mcp-gopls-plus/cmd/mcp-gopls-plus@latest
 2. **Verify** it's on your `$PATH`:
 
 ```bash
-mcp-gopls --help
+mcp-gopls-plus --help
 ```
 
 3. **Configure** your AI client (see examples below for Cursor, Claude Desktop, or GitHub Copilot).
@@ -110,7 +110,7 @@ mcp-gopls --help
 ## Detailed Client Setup
 
 > **Note:** All clients point to the same command:  
-> `mcp-gopls --workspace /absolute/path/to/your/go/project`  
+> `mcp-gopls-plus --workspace /absolute/path/to/your/go/project`  
 > The configuration format differs slightly per client, but the binary and arguments remain identical.
 
 ### 1. Connect from Cursor
@@ -122,7 +122,7 @@ mcp-gopls --help
 {
   "mcpServers": {
     "mcp-gopls": {
-      "command": "mcp-gopls",
+      "command": "mcp-gopls-plus",
       "args": ["--workspace", "/absolute/path/to/your/go/project"],
       "env": {
         "MCP_GOPLS_LOG_LEVEL": "info"
@@ -133,7 +133,7 @@ mcp-gopls --help
 ```
 
 3. Run **Developer: Reload Window** so Cursor reconnects.
-4. Open the **Tools** drawer in Cursor Chat and enable `mcp-gopls`.
+4. Open the **Tools** drawer in Cursor Chat and enable `mcp-gopls-plus`.
 
 ### 2. Invoke the tools
 
@@ -161,7 +161,7 @@ mcp-gopls --help
 
 ### Claude Desktop (macOS, Windows, Linux)
 
-1. Install `mcp-gopls` and make sure it is on your `$PATH`.
+1. Install `mcp-gopls-plus` and make sure it is on your `$PATH`.
 2. Create or edit `claude_desktop_config.json`.
    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - Linux: `~/.config/Claude/claude_desktop_config.json`
@@ -172,7 +172,7 @@ mcp-gopls --help
 {
   "mcpServers": {
     "mcp-gopls": {
-      "command": "mcp-gopls",
+      "command": "mcp-gopls-plus",
       "args": ["--workspace", "/absolute/path/to/your/go/project"],
       "env": {
         "MCP_GOPLS_LOG_LEVEL": "info"
@@ -182,7 +182,7 @@ mcp-gopls --help
 }
 ```
 
-Restart Claude Desktop, open a chat, and ask it to connect to the `mcp-gopls` tool (Claude will show a “Tools” tab once the server is detected). Typical prompts include “list diagnostics for `cmd/api/server.go`” or “rename `userService` to `accountService`.”
+Restart Claude Desktop, open a chat, and ask it to connect to the `mcp-gopls` tool (Claude will show a "Tools" tab once the server is detected). Typical prompts include “list diagnostics for `cmd/api/server.go`” or “rename `userService` to `accountService`.”
 
 ### Cursor IDE
 
@@ -192,18 +192,18 @@ In Cursor open **Settings → MCP Servers → Edit JSON** (this writes to `~/.cu
 {
   "mcpServers": {
     "mcp-gopls": {
-      "command": "mcp-gopls",
+      "command": "mcp-gopls-plus",
       "args": ["--workspace", "/absolute/path/to/your/go/project"]
     }
   }
 }
 ```
 
-Reload Cursor (or run the `Developer: Reload Window` command) and the server will appear inside the “Tools” drawer. You can now ask Cursor Chat things like “run `go test ./pkg/server` with coverage” or “show hover info for `pkg/tools/tests.go:42`.”
+Reload Cursor (or run the `Developer: Reload Window` command) and the server will appear inside the "Tools" drawer. You can now ask Cursor Chat things like “run `go test ./pkg/server` with coverage” or “show hover info for `pkg/tools/tests.go:42`.”
 
 ### GitHub Copilot (Agent Mode)
 
-GitHub Copilot’s Agent Mode can talk to local MCP servers across VS Code, JetBrains IDEs, Eclipse, and Xcode ([docs](https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-chat-with-mcp)). To wire `mcp-gopls` in VS Code:
+GitHub Copilot’s Agent Mode can talk to local MCP servers across VS Code, JetBrains IDEs, Eclipse, and Xcode ([docs](https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-chat-with-mcp)). To wire `mcp-gopls-plus` in VS Code:
 
 1. Update GitHub Copilot (requires VS Code 1.99+), opt into **Agent Mode**.
 2. Create `.vscode/mcp.json` in your workspace (or edit the global file shown in the Copilot “Edit config” dialog).
@@ -214,7 +214,7 @@ GitHub Copilot’s Agent Mode can talk to local MCP servers across VS Code, JetB
   "servers": {
     "mcp-gopls": {
       "type": "stdio",
-      "command": "mcp-gopls",
+      "command": "mcp-gopls-plus",
       "args": ["--workspace", "/absolute/path/to/your/go/project"],
       "env": {
         "MCP_GOPLS_LOG_LEVEL": "warn"
@@ -232,7 +232,7 @@ For quick smoke tests or demos you can use [mark3labs/mcp-inspector](https://git
 
 ```bash
 npx -y @mark3labs/mcp-inspector \
-  --command mcp-gopls \
+  --command mcp-gopls-plus \
   --args "--workspace" "/absolute/path/to/your/go/project"
 ```
 
@@ -331,7 +331,7 @@ Command-line flags take precedence over environment variables.
 
 - **“column is beyond end of line”** – gopls could not map the provided position. Confirm the file is saved and the position uses zero-based lines/columns; run `go fmt` to ensure tabs vs. spaces align with gopls expectations.
 - **“no hover information available”** – the symbol might belong to a generated file or a module outside the configured workspace. Ensure the `--workspace` flag points to the module root and that `go list ./...` succeeds.
-- **“workspace not initialized”** – the server did not finish its initial sync. Wait for the `workspace initialized` log line or restart `mcp-gopls` after deleting stale `.gopls` caches.
+- **“workspace not initialized”** – the server did not finish its initial sync. Wait for the `workspace initialized` log line or restart `mcp-gopls-plus` after deleting stale `.gopls` caches.
 - **`run_govulncheck` missing binary** – the tool now falls back to `go run golang.org/x/vuln/cmd/govulncheck@latest`, but the machine still needs outbound network access. Install the binary manually if the fallback is blocked.
 
 ## Usage Example
@@ -372,7 +372,7 @@ Table-driven tests live under `pkg/tools` and CI runs via `.github/workflows/ci.
 - Go 1.25+ (tested with `go1.25.4`)
 - `gopls` installed (`go install golang.org/x/tools/gopls@latest`)
 - Optional: `govulncheck` (`go install golang.org/x/vuln/cmd/govulncheck@latest`)
-- The server forces `GOTOOLCHAIN=local` for its nested `gopls` process. If you need a different toolchain, set `GOTOOLCHAIN` in the environment before launching `mcp-gopls`.
+- The server forces `GOTOOLCHAIN=local` for its nested `gopls` process. If you need a different toolchain, set `GOTOOLCHAIN` in the environment before launching `mcp-gopls-plus`.
 
 ## License
 

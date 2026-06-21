@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "mcp-gopls": {
-      "command": "mcp-gopls",
+      "command": "mcp-gopls-plus",
       "args": ["--workspace", "${workspaceFolder}"]
     }
   }
