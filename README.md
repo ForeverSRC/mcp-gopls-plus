@@ -4,13 +4,12 @@
 ![Go version](https://img.shields.io/badge/Go-1.25+-informational)
 [![CI](https://github.com/ForeverSRC/mcp-gopls-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/ForeverSRC/mcp-gopls-plus/actions)
 
-A Model Context Protocol (MCP) server that lets AI assistants use Go’s LSP (`gopls`) for navigation, diagnostics, testing, coverage, and more.
+> This project is a fork of [hloiseau/mcp-gopls](https://github.com/hloiseau/mcp-gopls), rebuilt with additional tools, resources, and prompts.
+
+A Model Context Protocol (MCP) server that lets AI assistants use Go's LSP (`gopls`) for navigation, diagnostics, testing, coverage, and more.
 
 > **TL;DR:** If you use Claude / Cursor / Copilot with Go, `mcp-gopls` gives the AI full LSP powers:
 > go-to-definition, references, hover, completion, `go test`, coverage, `go mod tidy`, `govulncheck`, etc.
-
-![Demo Animation](docs/Animation.gif)
-
 
 ## Overview
 
@@ -95,7 +94,7 @@ If you mostly want read-only/introspective tools (diagnostics, symbol search, re
 1. **Install** the server:
 
 ```bash
-go install github.com/ForeverSRC/mcp-gopls-plus/cmd/mcp-gopls@latest
+go install github.com/ForeverSRC/mcp-gopls-plus/cmd/mcp-gopls-plus@latest
 ```
 
 2. **Verify** it's on your `$PATH`:
@@ -143,7 +142,7 @@ mcp-gopls --help
 | `go_to_definition` | “Use `go_to_definition` on `pkg/server/server.go:42`.” |
 | `find_references` | “Ask the tool for references to `ServeStdio`.” |
 | `find_implementations` | “Find all types implementing `LSPClient` interface.” |
-| `check_diagnostics` | “Request diagnostics for `cmd/mcp-gopls/main.go`.” |
+| `check_diagnostics` | “Request diagnostics for `cmd/mcp-gopls-plus/main.go`.” |
 | `get_hover_info` | “Call `get_hover_info` on `pkg/tools/workspace.go:88`.” |
 | `get_completion` | “Trigger completions at `pkg/server/server.go:55`.” |
 | `format_document` | “Run the formatter over `pkg/tools/refactor.go`.” |
@@ -357,7 +356,7 @@ git clone https://github.com/ForeverSRC/mcp-gopls-plus.git
 cd mcp-gopls-plus
 go mod tidy
 go test ./...
-go build ./cmd/mcp-gopls
+go build ./cmd/mcp-gopls-plus
 ```
 
 Table-driven tests live under `pkg/tools` and CI runs via `.github/workflows/ci.yml`.

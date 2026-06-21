@@ -1,4 +1,6 @@
-# MCP-gopls Usage Guide
+# mcp-gopls-plus Usage Guide
+
+> This project is a fork of [hloiseau/mcp-gopls](https://github.com/hloiseau/mcp-gopls).
 
 ## Configure the server
 
