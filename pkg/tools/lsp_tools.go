@@ -73,6 +73,7 @@ func (t *LSPTools) Register(s *server.MCPServer) {
 	t.registerTestingTools(s)
 	t.registerRefactorTools(s)
 	t.registerWorkspaceTools(s)
+	t.registerImplementsTools(s)
 }
 
 func convertPathToURI(path string) string {
