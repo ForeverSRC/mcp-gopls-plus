@@ -192,6 +192,11 @@ func TestToolsEndToEnd(t *testing.T) {
 		}
 	})
 
+	// find_implementations is registered but needs a real Go workspace.
+	if tool := server.GetTool("find_implementations"); tool == nil {
+		t.Fatal("tool find_implementations not registered")
+	}
+
 	if len(fakeRunner.calls) == 0 {
 		t.Fatal("expected command runner to be invoked")
 	}
