@@ -23,9 +23,13 @@ func (t *LSPTools) registerGoToDefinition(s *server.MCPServer) {
 			mcp.Required(),
 			mcp.Description("URI of the file"),
 		),
-		mcp.WithObject("position",
+		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Position of the symbol"),
+			mcp.Description("Line number (0-indexed)"),
+		),
+		mcp.WithNumber("character",
+			mcp.Required(),
+			mcp.Description("Character offset (0-indexed)"),
 		),
 	)
 
@@ -40,7 +44,11 @@ func (t *LSPTools) registerGoToDefinition(s *server.MCPServer) {
 			return nil, err
 		}
 
-		line, character, err := parsePosition(args)
+		line, err := getIntArg(args, "line")
+		if err != nil {
+			return nil, err
+		}
+		character, err := getIntArg(args, "character")
 		if err != nil {
 			return nil, err
 		}
@@ -80,9 +88,13 @@ func (t *LSPTools) registerFindReferences(s *server.MCPServer) {
 			mcp.Required(),
 			mcp.Description("URI of the file"),
 		),
-		mcp.WithObject("position",
+		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Position of the symbol"),
+			mcp.Description("Line number (0-indexed)"),
+		),
+		mcp.WithNumber("character",
+			mcp.Required(),
+			mcp.Description("Character offset (0-indexed)"),
 		),
 	)
 
@@ -97,7 +109,11 @@ func (t *LSPTools) registerFindReferences(s *server.MCPServer) {
 			return nil, err
 		}
 
-		line, character, err := parsePosition(args)
+		line, err := getIntArg(args, "line")
+		if err != nil {
+			return nil, err
+		}
+		character, err := getIntArg(args, "character")
 		if err != nil {
 			return nil, err
 		}

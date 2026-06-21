@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/protocol"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -71,9 +72,13 @@ func (t *LSPTools) registerRenameSymbol(s *server.MCPServer) {
 			mcp.Required(),
 			mcp.Description("URI of the file"),
 		),
-		mcp.WithObject("position",
+		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Position of the symbol"),
+			mcp.Description("Line number (0-indexed)"),
+		),
+		mcp.WithNumber("character",
+			mcp.Required(),
+			mcp.Description("Character offset (0-indexed)"),
 		),
 		mcp.WithString("new_name",
 			mcp.Required(),
@@ -92,7 +97,11 @@ func (t *LSPTools) registerRenameSymbol(s *server.MCPServer) {
 			return nil, err
 		}
 
-		line, character, err := parsePosition(args)
+		line, err := getIntArg(args, "line")
+		if err != nil {
+			return nil, err
+		}
+		character, err := getIntArg(args, "character")
 		if err != nil {
 			return nil, err
 		}
@@ -138,9 +147,21 @@ func (t *LSPTools) registerCodeActionsTool(s *server.MCPServer) {
 			mcp.Required(),
 			mcp.Description("URI of the file"),
 		),
-		mcp.WithObject("range",
+		mcp.WithNumber("start_line",
 			mcp.Required(),
-			mcp.Description("Range to inspect for code actions"),
+			mcp.Description("Range start line (0-indexed)"),
+		),
+		mcp.WithNumber("start_character",
+			mcp.Required(),
+			mcp.Description("Range start character (0-indexed)"),
+		),
+		mcp.WithNumber("end_line",
+			mcp.Required(),
+			mcp.Description("Range end line (0-indexed)"),
+		),
+		mcp.WithNumber("end_character",
+			mcp.Required(),
+			mcp.Description("Range end character (0-indexed)"),
 		),
 	)
 
@@ -155,9 +176,25 @@ func (t *LSPTools) registerCodeActionsTool(s *server.MCPServer) {
 			return nil, err
 		}
 
-		rng, err := parseRangeArg(args, "range")
+		startLine, err := getIntArg(args, "start_line")
 		if err != nil {
 			return nil, err
+		}
+		startChar, err := getIntArg(args, "start_character")
+		if err != nil {
+			return nil, err
+		}
+		endLine, err := getIntArg(args, "end_line")
+		if err != nil {
+			return nil, err
+		}
+		endChar, err := getIntArg(args, "end_character")
+		if err != nil {
+			return nil, err
+		}
+		rng := protocol.Range{
+			Start: protocol.Position{Line: startLine, Character: startChar},
+			End:   protocol.Position{Line: endLine, Character: endChar},
 		}
 
 		if !strings.HasPrefix(fileURI, "file://") {
