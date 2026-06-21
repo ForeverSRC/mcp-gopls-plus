@@ -4,7 +4,8 @@
     "description": "Navigate to the definition of a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "position", "type": "object", "desc": "Position of the symbol."}
+      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
+      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
     ]
   },
   {
@@ -12,7 +13,16 @@
     "description": "Find all references to a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "position", "type": "object", "desc": "Position of the symbol."}
+      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
+      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
+    ]
+  },
+  {
+    "name": "find_implementations",
+    "description": "Find all named types in the workspace that implement a given interface.",
+    "arguments": [
+      {"name": "interface_name", "type": "string", "desc": "Name of the interface type (e.g. \"LSPClient\")."},
+      {"name": "package_path", "type": "string", "desc": "Optional import path to narrow the search (e.g. \"github.com/example/pkg\"). If omitted, searches all packages loaded by the workspace."}
     ]
   },
   {
@@ -27,7 +37,8 @@
     "description": "Get hover information for a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "position", "type": "object", "desc": "Position of the symbol."}
+      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
+      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
     ]
   },
   {
@@ -35,7 +46,8 @@
     "description": "Get completion suggestions at a position.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "position", "type": "object", "desc": "Position where to get completion."}
+      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
+      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
     ]
   },
   {
@@ -50,7 +62,8 @@
     "description": "Compute rename edits for a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "position", "type": "object", "desc": "Position of the symbol."},
+      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
+      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."},
       {"name": "new_name", "type": "string", "desc": "New identifier name."}
     ]
   },
@@ -59,7 +72,10 @@
     "description": "List available code actions for a given range.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "range", "type": "object", "desc": "Range to inspect for code actions."}
+      {"name": "start_line", "type": "number", "desc": "Range start line (0-indexed)."},
+      {"name": "start_character", "type": "number", "desc": "Range start character (0-indexed)."},
+      {"name": "end_line", "type": "number", "desc": "Range end line (0-indexed)."},
+      {"name": "end_character", "type": "number", "desc": "Range end character (0-indexed)."}
     ]
   },
   {

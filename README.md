@@ -51,6 +51,7 @@ As of `gopls` v0.20.0, the built-in MCP server exposes these tools:
 |----------------------|----------------------------|----------------------|
 | Go-to-definition | Yes (`go_to_definition` tool) | No dedicated MCP tool (not in tool list) |
 | Find references | Yes (`find_references`) | Yes (`go_references`, `go_symbol_references`) |
+| Find implementations | Yes (`find_implementations`) | No dedicated MCP tool (not in tool list) |
 | Diagnostics (file / workspace) | Yes (`check_diagnostics`) | Yes (`go_diagnostics`, `go_file_diagnostics`) |
 | Hover information | Yes (`get_hover_info`) | No dedicated MCP tool (not in tool list) |
 | Completion | Yes (`get_completion`) | No dedicated MCP tool (not in tool list) |
@@ -141,6 +142,7 @@ mcp-gopls --help
 |---------------|------------------------------------|
 | `go_to_definition` | “Use `go_to_definition` on `pkg/server/server.go:42`.” |
 | `find_references` | “Ask the tool for references to `ServeStdio`.” |
+| `find_implementations` | “Find all types implementing `LSPClient` interface.” |
 | `check_diagnostics` | “Request diagnostics for `cmd/mcp-gopls/main.go`.” |
 | `get_hover_info` | “Call `get_hover_info` on `pkg/tools/workspace.go:88`.” |
 | `get_completion` | “Trigger completions at `pkg/server/server.go:55`.” |
@@ -243,6 +245,7 @@ The inspector lets you call each tool/resource/prompt manually, which is handy f
 |------|-------------|
 | `go_to_definition` | Navigate to the definition of a symbol |
 | `find_references` | List all references for a symbol |
+| `find_implementations` | Find all types implementing a given interface |
 | `check_diagnostics` | Fetch cached diagnostics for a file |
 | `get_hover_info` | Return hover markdown for a symbol |
 | `get_completion` | Return completion labels at a position |
