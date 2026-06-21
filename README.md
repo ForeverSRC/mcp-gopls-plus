@@ -312,6 +312,7 @@ The server supports various configuration options via command-line flags and env
 | `--log-level`         | `info`  | Log level (`debug`, `info`, `warn`, `error`)   |
 | `--rpc-timeout`       | `30s`   | RPC timeout for LSP calls                      |
 | `--shutdown-timeout`  | `5s`    | Timeout for graceful shutdown                  |
+| `--fs-watch`          | `false` | Watch workspace filesystem and notify gopls on `.go`/`go.mod`/`go.sum` changes (env: `MCP_GOPLS_FS_WATCH`) |
 
 ### Environment Variables
 
@@ -324,6 +325,7 @@ All flags can be set via environment variables with the `MCP_GOPLS_` prefix:
 | `MCP_GOPLS_LOG_LEVEL`     | `--log-level`         | Log level (`debug`, `info`, `warn`, `error`)   |
 | `MCP_GOPLS_RPC_TIMEOUT`   | `--rpc-timeout`       | RPC timeout for LSP calls (e.g., `30s`, `1m`)  |
 | `MCP_GOPLS_SHUTDOWN_TIMEOUT` | `--shutdown-timeout` | Timeout for graceful shutdown                |
+| `MCP_GOPLS_FS_WATCH`      | `--fs-watch`          | Watch workspace filesystem (`true` or `false`) |
 
 Command-line flags take precedence over environment variables.
 

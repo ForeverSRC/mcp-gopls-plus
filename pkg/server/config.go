@@ -17,6 +17,7 @@ type Config struct {
 	LogLevel        slog.Level
 	ShutdownTimeout time.Duration
 	RPCTimeout      time.Duration
+	FSWatch         bool
 }
 
 // DefaultConfig returns sensible defaults for local development.

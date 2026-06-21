@@ -57,6 +57,9 @@ func (s *stubLSPClient) WorkspaceSymbols(ctx context.Context, query string) ([]p
 	return nil, nil
 }
 func (s *stubLSPClient) OnDiagnostics(handler client.DiagnosticsHandler) func() { return func() {} }
+func (s *stubLSPClient) NotifyDidChangeWatchedFiles(ctx context.Context, changes []protocol.FileEvent) error {
+	return nil
+}
 
 func TestResourceDefinitions(t *testing.T) {
 	tmp := t.TempDir()
