@@ -1,6 +1,6 @@
 .PHONY: all build clean test coverage deps fmt fmt-check lint vet tidy tidy-check verify
 
-BINARY_NAME=mcp-gopls
+BINARY_NAME=mcp-gopls-plus
 GO=go
 GOFLAGS=-v
 LDFLAGS=-ldflags="-s -w"

@@ -6,13 +6,13 @@
 
 ```bash
 # Run inside your Go repo
-mcp-gopls \
+mcp-gopls-plus \
   --workspace /path/to/repo \
   --log-level debug \
   --rpc-timeout 60s
 ```
 
-> **Note:** `mcp-gopls` ensures `GOTOOLCHAIN=local` for the embedded `gopls` process so that it can run even when the requested Go toolchain hasn’t been published yet. Export your own `GOTOOLCHAIN` before starting the server if you prefer a different setting.
+> **Note:** `mcp-gopls-plus` ensures `GOTOOLCHAIN=local` for the embedded `gopls` process so that it can run even when the requested Go toolchain hasn't been published yet. Export your own `GOTOOLCHAIN` before starting the server if you prefer a different setting.
 
 Environment variables:
 
