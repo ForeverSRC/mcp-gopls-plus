@@ -25,11 +25,11 @@ func (t *LSPTools) registerHover(s *server.MCPServer) {
 		),
 		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Line number (0-indexed)"),
+			mcp.Description("Line number (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("character",
 			mcp.Required(),
-			mcp.Description("Character offset (0-indexed)"),
+			mcp.Description("Character offset (1-indexed, first character = 1)"),
 		),
 	)
 
@@ -62,10 +62,17 @@ func (t *LSPTools) registerHover(s *server.MCPServer) {
 			return nil, fmt.Errorf("LSP client not initialized")
 		}
 
-		info, err := lspClient.GetHover(ctx, fileURI, line, character)
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
+		lspLine := line - 1
+		lspChar := character - 1
+
+		info, err := lspClient.GetHover(ctx, fileURI, lspLine, lspChar)
 		if err != nil {
 			if strings.Contains(err.Error(), "client closed") {
 				return nil, fmt.Errorf("LSP service not available, please restart the server: %w", err)
+			}
+			if isPositionError(err) {
+				return nil, fmt.Errorf("get_hover_info failed at (%d,%d): %w (Tip: line/character are 1-indexed)", line, character, err)
 			}
 			return nil, fmt.Errorf("failed to get hover info: %w", err)
 		}
@@ -92,11 +99,11 @@ func (t *LSPTools) registerCompletion(s *server.MCPServer) {
 		),
 		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Line number (0-indexed)"),
+			mcp.Description("Line number (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("character",
 			mcp.Required(),
-			mcp.Description("Character offset (0-indexed)"),
+			mcp.Description("Character offset (1-indexed, first character = 1)"),
 		),
 	)
 
@@ -129,10 +136,17 @@ func (t *LSPTools) registerCompletion(s *server.MCPServer) {
 			return nil, fmt.Errorf("LSP client not initialized")
 		}
 
-		completions, err := lspClient.GetCompletion(ctx, fileURI, line, character)
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
+		lspLine := line - 1
+		lspChar := character - 1
+
+		completions, err := lspClient.GetCompletion(ctx, fileURI, lspLine, lspChar)
 		if err != nil {
 			if strings.Contains(err.Error(), "client closed") {
 				return nil, fmt.Errorf("LSP service not available, please restart the server: %w", err)
+			}
+			if isPositionError(err) {
+				return nil, fmt.Errorf("get_completion failed at (%d,%d): %w (Tip: line/character are 1-indexed)", line, character, err)
 			}
 			return nil, fmt.Errorf("failed to get completions: %w", err)
 		}

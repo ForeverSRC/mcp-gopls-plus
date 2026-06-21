@@ -4,8 +4,8 @@
     "description": "Navigate to the definition of a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
-      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
+      {"name": "line", "type": "number", "desc": "Line number (1-indexed, first line = 1)."},
+      {"name": "character", "type": "number", "desc": "Character offset (1-indexed, first character = 1)."}
     ]
   },
   {
@@ -13,8 +13,8 @@
     "description": "Find all references to a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
-      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
+      {"name": "line", "type": "number", "desc": "Line number (1-indexed, first line = 1)."},
+      {"name": "character", "type": "number", "desc": "Character offset (1-indexed, first character = 1)."}
     ]
   },
   {
@@ -37,8 +37,8 @@
     "description": "Get hover information for a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
-      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
+      {"name": "line", "type": "number", "desc": "Line number (1-indexed, first line = 1)."},
+      {"name": "character", "type": "number", "desc": "Character offset (1-indexed, first character = 1)."}
     ]
   },
   {
@@ -46,8 +46,8 @@
     "description": "Get completion suggestions at a position.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
-      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."}
+      {"name": "line", "type": "number", "desc": "Line number (1-indexed, first line = 1)."},
+      {"name": "character", "type": "number", "desc": "Character offset (1-indexed, first character = 1)."}
     ]
   },
   {
@@ -62,8 +62,8 @@
     "description": "Compute rename edits for a symbol.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "line", "type": "number", "desc": "Line number (0-indexed)."},
-      {"name": "character", "type": "number", "desc": "Character offset (0-indexed)."},
+      {"name": "line", "type": "number", "desc": "Line number (1-indexed, first line = 1)."},
+      {"name": "character", "type": "number", "desc": "Character offset (1-indexed, first character = 1)."},
       {"name": "new_name", "type": "string", "desc": "New identifier name."}
     ]
   },
@@ -72,10 +72,10 @@
     "description": "List available code actions for a given range.",
     "arguments": [
       {"name": "file_uri", "type": "string", "desc": "URI of the file."},
-      {"name": "start_line", "type": "number", "desc": "Range start line (0-indexed)."},
-      {"name": "start_character", "type": "number", "desc": "Range start character (0-indexed)."},
-      {"name": "end_line", "type": "number", "desc": "Range end line (0-indexed)."},
-      {"name": "end_character", "type": "number", "desc": "Range end character (0-indexed)."}
+      {"name": "start_line", "type": "number", "desc": "Range start line (1-indexed, first line = 1)."},
+      {"name": "start_character", "type": "number", "desc": "Range start character (1-indexed, first character = 1)."},
+      {"name": "end_line", "type": "number", "desc": "Range end line (1-indexed, first line = 1)."},
+      {"name": "end_character", "type": "number", "desc": "Range end character (1-indexed, first character = 1)."}
     ]
   },
   {

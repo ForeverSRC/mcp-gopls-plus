@@ -25,11 +25,11 @@ func (t *LSPTools) registerGoToDefinition(s *server.MCPServer) {
 		),
 		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Line number (0-indexed)"),
+			mcp.Description("Line number (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("character",
 			mcp.Required(),
-			mcp.Description("Character offset (0-indexed)"),
+			mcp.Description("Character offset (1-indexed, first character = 1)"),
 		),
 	)
 
@@ -62,8 +62,15 @@ func (t *LSPTools) registerGoToDefinition(s *server.MCPServer) {
 			return nil, fmt.Errorf("LSP client not available")
 		}
 
-		locations, err := lspClient.GoToDefinition(ctx, fileURI, line, character)
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
+		lspLine := line - 1
+		lspChar := character - 1
+
+		locations, err := lspClient.GoToDefinition(ctx, fileURI, lspLine, lspChar)
 		if err != nil {
+			if isPositionError(err) {
+				return nil, fmt.Errorf("go_to_definition failed at (%d,%d): %w (Tip: line/character are 1-indexed)", line, character, err)
+			}
 			return nil, t.handleLSPError(err)
 		}
 
@@ -90,11 +97,11 @@ func (t *LSPTools) registerFindReferences(s *server.MCPServer) {
 		),
 		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Line number (0-indexed)"),
+			mcp.Description("Line number (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("character",
 			mcp.Required(),
-			mcp.Description("Character offset (0-indexed)"),
+			mcp.Description("Character offset (1-indexed, first character = 1)"),
 		),
 	)
 
@@ -127,10 +134,17 @@ func (t *LSPTools) registerFindReferences(s *server.MCPServer) {
 			return nil, fmt.Errorf("LSP client not available")
 		}
 
-		locations, err := lspClient.FindReferences(ctx, fileURI, line, character, true)
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
+		lspLine := line - 1
+		lspChar := character - 1
+
+		locations, err := lspClient.FindReferences(ctx, fileURI, lspLine, lspChar, true)
 		if err != nil {
 			if strings.Contains(err.Error(), "client closed") {
 				return nil, fmt.Errorf("LSP client not available, please restart the server: %w", err)
+			}
+			if isPositionError(err) {
+				return nil, fmt.Errorf("find_references failed at (%d,%d): %w (Tip: line/character are 1-indexed)", line, character, err)
 			}
 			return nil, t.handleLSPError(err)
 		}

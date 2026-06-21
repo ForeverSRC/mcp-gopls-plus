@@ -136,6 +136,19 @@ func getIntArg(args map[string]any, key string) (int, error) {
 	}
 }
 
+// isPositionError checks if an LSP error is related to an invalid position.
+// These errors typically occur when the provided line/character don't match
+// any identifier, often due to incorrect 0-indexed vs 1-indexed calculation.
+func isPositionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "no identifier found") ||
+		strings.Contains(msg, "column is beyond end of line") ||
+		strings.Contains(msg, "position out of range")
+}
+
 type commandResult struct {
 	Command  []string `json:"command"`
 	ExitCode int      `json:"exit_code"`
