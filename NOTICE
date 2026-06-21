@@ -1,0 +1,8 @@
+mcp-gopls-plus
+Copyright 2026 ForeverSRC
+
+This project is a fork of github.com/hloiseau/mcp-gopls (Apache 2.0).
+All files in this distribution have been modified from the original:
+module path renamed, Docker-related files and configurations removed,
+documentation updated, and other changes. For the complete change
+history, see the git log.

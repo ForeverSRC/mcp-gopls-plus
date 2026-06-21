@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/hloiseau/mcp-gopls/v2/pkg/server"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/server"
 )
 
 type serviceRunner interface {

@@ -16,8 +16,8 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
-	"github.com/hloiseau/mcp-gopls/v2/internal/goenv"
-	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/client"
+	"github.com/ForeverSRC/mcp-gopls-plus/internal/goenv"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
 )
 
 type commandRunner func(*LSPTools, context.Context, *server.MCPServer, mcp.ProgressToken, string, ...string) (commandResult, error)

@@ -12,8 +12,8 @@ import (
 
 	mcpsrv "github.com/mark3labs/mcp-go/server"
 
-	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/client"
-	"github.com/hloiseau/mcp-gopls/v2/pkg/tools"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/tools"
 )
 
 var (

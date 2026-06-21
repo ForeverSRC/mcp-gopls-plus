@@ -34,7 +34,7 @@ func (t *LSPTools) registerFindImplementations(s *server.MCPServer) {
 			mcp.Description("Name of the interface type (e.g. \"LSPClient\")"),
 		),
 		mcp.WithString("package_path",
-			mcp.Description("Optional import path to narrow the search (e.g. \"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/client\"). If omitted, searches all packages loaded by the workspace."),
+			mcp.Description("Optional import path to narrow the search (e.g. \"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client\"). If omitted, searches all packages loaded by the workspace."),
 		),
 	)
 
@@ -80,9 +80,7 @@ func (t *LSPTools) findImplementations(ctx context.Context, ifaceName, pkgPath s
 		return nil, fmt.Errorf("load packages: %w", err)
 	}
 
-	if packages.PrintErrors(pkgs) > 0 {
-		// Non-fatal: continue with packages that loaded successfully
-	}
+	packages.PrintErrors(pkgs)
 
 	// Locate the target interface and its package.
 	var targetIface *types.Interface

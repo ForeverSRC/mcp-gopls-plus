@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/protocol"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/protocol"
 )
 
 func newTestClient() *GoplsClient {

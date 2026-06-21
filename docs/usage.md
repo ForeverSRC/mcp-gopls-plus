@@ -23,25 +23,6 @@ Environment variables:
 |`MCP_GOPLS_RPC_TIMEOUT`|LSP call timeout|
 |`MCP_GOPLS_SHUTDOWN_TIMEOUT`|Graceful shutdown timeout|
 
-## Docker / MCP Gateway
-
-If you prefer a containerized server, use the official image and mount your workspace:
-
-```bash
-docker run --rm -i \
-  -v /absolute/path/to/your/go/project:/workspace \
-  ghcr.io/hloiseau/mcp-gopls:latest \
-  --workspace /workspace
-```
-
-For Docker MCP Gateway, copy `docs/docker-mcp.yaml`, update the bind mount path, and run:
-
-```bash
-docker mcp gateway run
-```
-
-If a tools catalog requires `toolsUrl`, point it at `docs/tools.json`.
-
 ## Resource & prompt catalog
 
 |Resource URI|Description|
