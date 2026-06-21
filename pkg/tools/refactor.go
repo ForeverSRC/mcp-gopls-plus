@@ -74,11 +74,11 @@ func (t *LSPTools) registerRenameSymbol(s *server.MCPServer) {
 		),
 		mcp.WithNumber("line",
 			mcp.Required(),
-			mcp.Description("Line number (0-indexed)"),
+			mcp.Description("Line number (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("character",
 			mcp.Required(),
-			mcp.Description("Character offset (0-indexed)"),
+			mcp.Description("Character offset (1-indexed, first character = 1)"),
 		),
 		mcp.WithString("new_name",
 			mcp.Required(),
@@ -120,8 +120,15 @@ func (t *LSPTools) registerRenameSymbol(s *server.MCPServer) {
 			return nil, fmt.Errorf("LSP client not initialized")
 		}
 
-		edit, err := lspClient.Rename(ctx, fileURI, line, character, newName)
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
+		lspLine := line - 1
+		lspChar := character - 1
+
+		edit, err := lspClient.Rename(ctx, fileURI, lspLine, lspChar, newName)
 		if err != nil {
+			if isPositionError(err) {
+				return nil, fmt.Errorf("rename_symbol failed at (%d,%d): %w (Tip: line/character are 1-indexed)", line, character, err)
+			}
 			return nil, t.handleLSPError(err)
 		}
 
@@ -149,19 +156,19 @@ func (t *LSPTools) registerCodeActionsTool(s *server.MCPServer) {
 		),
 		mcp.WithNumber("start_line",
 			mcp.Required(),
-			mcp.Description("Range start line (0-indexed)"),
+			mcp.Description("Range start line (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("start_character",
 			mcp.Required(),
-			mcp.Description("Range start character (0-indexed)"),
+			mcp.Description("Range start character (1-indexed, first character = 1)"),
 		),
 		mcp.WithNumber("end_line",
 			mcp.Required(),
-			mcp.Description("Range end line (0-indexed)"),
+			mcp.Description("Range end line (1-indexed, first line = 1)"),
 		),
 		mcp.WithNumber("end_character",
 			mcp.Required(),
-			mcp.Description("Range end character (0-indexed)"),
+			mcp.Description("Range end character (1-indexed, first character = 1)"),
 		),
 	)
 
@@ -192,9 +199,10 @@ func (t *LSPTools) registerCodeActionsTool(s *server.MCPServer) {
 		if err != nil {
 			return nil, err
 		}
+		// Convert 1-indexed (user-facing) to 0-indexed (LSP protocol)
 		rng := protocol.Range{
-			Start: protocol.Position{Line: startLine, Character: startChar},
-			End:   protocol.Position{Line: endLine, Character: endChar},
+			Start: protocol.Position{Line: startLine - 1, Character: startChar - 1},
+			End:   protocol.Position{Line: endLine - 1, Character: endChar - 1},
 		}
 
 		if !strings.HasPrefix(fileURI, "file://") {
