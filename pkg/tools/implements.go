@@ -80,9 +80,7 @@ func (t *LSPTools) findImplementations(ctx context.Context, ifaceName, pkgPath s
 		return nil, fmt.Errorf("load packages: %w", err)
 	}
 
-	if packages.PrintErrors(pkgs) > 0 {
-		// Non-fatal: continue with packages that loaded successfully
-	}
+	packages.PrintErrors(pkgs)
 
 	// Locate the target interface and its package.
 	var targetIface *types.Interface
