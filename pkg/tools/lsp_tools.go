@@ -18,7 +18,6 @@ import (
 
 	"github.com/hloiseau/mcp-gopls/v2/internal/goenv"
 	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/client"
-	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/protocol"
 )
 
 type commandRunner func(*LSPTools, context.Context, *server.MCPServer, mcp.ProgressToken, string, ...string) (commandResult, error)
@@ -121,22 +120,10 @@ func getStringArg(args map[string]any, key string) (string, error) {
 	return str, nil
 }
 
-func getObjectArg(args map[string]any, key string) (map[string]any, error) {
+func getIntArg(args map[string]any, key string) (int, error) {
 	val, ok := args[key]
 	if !ok {
-		return nil, fmt.Errorf("%s argument is required", key)
-	}
-	obj, ok := val.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("%s must be an object", key)
-	}
-	return obj, nil
-}
-
-func getIntFromObject(obj map[string]any, key string) (int, error) {
-	val, ok := obj[key]
-	if !ok {
-		return 0, fmt.Errorf("%s is required", key)
+		return 0, fmt.Errorf("%s argument is required", key)
 	}
 	switch v := val.(type) {
 	case float64:
@@ -146,60 +133,6 @@ func getIntFromObject(obj map[string]any, key string) (int, error) {
 	default:
 		return 0, fmt.Errorf("%s must be a number", key)
 	}
-}
-
-func parsePosition(args map[string]any) (int, int, error) {
-	position, err := getObjectArg(args, "position")
-	if err != nil {
-		return 0, 0, err
-	}
-	line, err := getIntFromObject(position, "line")
-	if err != nil {
-		return 0, 0, err
-	}
-	character, err := getIntFromObject(position, "character")
-	if err != nil {
-		return 0, 0, err
-	}
-	return line, character, nil
-}
-
-func parseRangeArg(args map[string]any, key string) (protocol.Range, error) {
-	rangeObj, err := getObjectArg(args, key)
-	if err != nil {
-		return protocol.Range{}, err
-	}
-
-	startObj, err := getObjectArg(rangeObj, "start")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-	endObj, err := getObjectArg(rangeObj, "end")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-
-	startLine, err := getIntFromObject(startObj, "line")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-	startChar, err := getIntFromObject(startObj, "character")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-	endLine, err := getIntFromObject(endObj, "line")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-	endChar, err := getIntFromObject(endObj, "character")
-	if err != nil {
-		return protocol.Range{}, err
-	}
-
-	return protocol.Range{
-		Start: protocol.Position{Line: startLine, Character: startChar},
-		End:   protocol.Position{Line: endLine, Character: endChar},
-	}, nil
 }
 
 type commandResult struct {

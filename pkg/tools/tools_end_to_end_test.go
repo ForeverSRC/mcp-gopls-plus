@@ -76,8 +76,9 @@ func TestToolsEndToEnd(t *testing.T) {
 	}
 
 	assertTool("go_to_definition", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"position": map[string]any{"line": 0, "character": 0},
+		"file_uri":  "file://tmp/main.go",
+		"line":      0,
+		"character": 0,
 	}, func(t *testing.T, content map[string]any) {
 		if content["file_uri"] != "file://tmp/main.go" {
 			t.Fatalf("unexpected file uri %v", content["file_uri"])
@@ -85,8 +86,9 @@ func TestToolsEndToEnd(t *testing.T) {
 	})
 
 	assertTool("find_references", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"position": map[string]any{"line": 0, "character": 0},
+		"file_uri":  "file://tmp/main.go",
+		"line":      0,
+		"character": 0,
 	}, func(t *testing.T, content map[string]any) {
 		if _, ok := content["references"]; !ok {
 			t.Fatalf("missing references field")
@@ -102,8 +104,9 @@ func TestToolsEndToEnd(t *testing.T) {
 	})
 
 	assertTool("get_hover_info", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"position": map[string]any{"line": 0, "character": 0},
+		"file_uri":  "file://tmp/main.go",
+		"line":      0,
+		"character": 0,
 	}, func(t *testing.T, content map[string]any) {
 		if content["hover"] != "hover info" {
 			t.Fatalf("unexpected hover %#v", content)
@@ -111,8 +114,9 @@ func TestToolsEndToEnd(t *testing.T) {
 	})
 
 	assertTool("get_completion", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"position": map[string]any{"line": 0, "character": 0},
+		"file_uri":  "file://tmp/main.go",
+		"line":      0,
+		"character": 0,
 	}, func(t *testing.T, content map[string]any) {
 		if len(content["completions"].([]any)) != 1 {
 			t.Fatalf("unexpected completions %#v", content)
@@ -128,9 +132,10 @@ func TestToolsEndToEnd(t *testing.T) {
 	})
 
 	assertTool("rename_symbol", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"position": map[string]any{"line": 0, "character": 0},
-		"new_name": "name",
+		"file_uri":  "file://tmp/main.go",
+		"line":      0,
+		"character": 0,
+		"new_name":  "name",
 	}, func(t *testing.T, content map[string]any) {
 		if content["new_name"] != "name" {
 			t.Fatalf("unexpected rename payload %#v", content)
@@ -138,11 +143,11 @@ func TestToolsEndToEnd(t *testing.T) {
 	})
 
 	assertTool("list_code_actions", map[string]any{
-		"file_uri": "file://tmp/main.go",
-		"range": map[string]any{
-			"start": map[string]any{"line": 0, "character": 0},
-			"end":   map[string]any{"line": 0, "character": 1},
-		},
+		"file_uri":        "file://tmp/main.go",
+		"start_line":      0,
+		"start_character": 0,
+		"end_line":        0,
+		"end_character":   1,
 	}, func(t *testing.T, content map[string]any) {
 		if len(content["actions"].([]any)) != 1 {
 			t.Fatalf("unexpected code actions %#v", content)
