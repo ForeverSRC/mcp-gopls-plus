@@ -36,6 +36,9 @@ type LSPClient interface {
 	CodeActions(ctx context.Context, uri string, rng protocol.Range) ([]protocol.CodeAction, error)
 	WorkspaceSymbols(ctx context.Context, query string) ([]protocol.SymbolInformation, error)
 
+	// Watched files
+	NotifyDidChangeWatchedFiles(ctx context.Context, changes []protocol.FileEvent) error
+
 	// Observability
 	OnDiagnostics(handler DiagnosticsHandler) func()
 }

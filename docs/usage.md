@@ -24,6 +24,7 @@ Environment variables:
 |`MCP_GOPLS_LOG_LEVEL`|debug, info, warn, error|
 |`MCP_GOPLS_RPC_TIMEOUT`|LSP call timeout|
 |`MCP_GOPLS_SHUTDOWN_TIMEOUT`|Graceful shutdown timeout|
+|`MCP_GOPLS_FS_WATCH`|Enable filesystem watching (`true` to enable)|
 
 ## Resource & prompt catalog
 

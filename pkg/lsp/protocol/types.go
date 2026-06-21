@@ -96,6 +96,26 @@ type OptionalVersionedTextDocumentIdentifier struct {
 	Version *int   `json:"version"`
 }
 
+// FileChangeType represents the type of file change (LSP 3.17).
+type FileChangeType int
+
+const (
+	FileCreated FileChangeType = 1
+	FileChanged FileChangeType = 2
+	FileDeleted FileChangeType = 3
+)
+
+// FileEvent represents a file change event (LSP 3.17).
+type FileEvent struct {
+	URI  string         `json:"uri"`
+	Type FileChangeType `json:"type"`
+}
+
+// DidChangeWatchedFilesParams represents the params for workspace/didChangeWatchedFiles (LSP 3.17).
+type DidChangeWatchedFilesParams struct {
+	Changes []FileEvent `json:"changes"`
+}
+
 // WorkspaceEdit représente un ensemble de modifications.
 type WorkspaceEdit struct {
 	Changes         map[string][]TextEdit `json:"changes,omitempty"`

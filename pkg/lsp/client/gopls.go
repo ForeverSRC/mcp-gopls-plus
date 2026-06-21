@@ -676,6 +676,12 @@ func (c *GoplsClient) DidClose(ctx context.Context, uri string) error {
 	return c.notify("textDocument/didClose", params)
 }
 
+// NotifyDidChangeWatchedFiles implements LSPClient.
+func (c *GoplsClient) NotifyDidChangeWatchedFiles(ctx context.Context, changes []protocol.FileEvent) error {
+	params := protocol.DidChangeWatchedFilesParams{Changes: changes}
+	return c.notify("workspace/didChangeWatchedFiles", params)
+}
+
 // GetHover implements LSPClient.
 func (c *GoplsClient) GetHover(ctx context.Context, uri string, line, character int) (string, error) {
 	opened, err := c.ensureDocumentOpen(uri, "go", "")

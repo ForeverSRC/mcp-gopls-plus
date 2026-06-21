@@ -12,6 +12,7 @@ import (
 
 	mcpsrv "github.com/mark3labs/mcp-go/server"
 
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/fs"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/tools"
 )
@@ -57,6 +58,8 @@ type Service struct {
 
 	lspClient   client.LSPClient
 	clientMutex sync.RWMutex
+
+	fsWatcher *fs.Watcher
 }
 
 func (s *Service) initLSPClient(ctx context.Context) error {
@@ -143,6 +146,11 @@ func (s *Service) Start(ctx context.Context) error {
 	stdioServer := newStdioServer(s.server)
 
 	s.logger.Info("serving MCP over stdio")
+
+	if s.fsWatcher != nil {
+		go s.fsWatcher.Run(ctx)
+	}
+
 	if err := stdioServer.Listen(ctx, os.Stdin, os.Stdout); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}

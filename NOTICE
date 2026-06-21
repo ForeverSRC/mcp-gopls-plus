@@ -6,3 +6,6 @@ All files in this distribution have been modified from the original:
 module path renamed, Docker-related files and configurations removed,
 documentation updated, and other changes. For the complete change
 history, see the git log.
+
+Files in the pkg/fs package implement filesystem watching using fsnotify,
+ported from vdergachev's contribution to github.com/hloiseau/mcp-gopls (PR #13).
