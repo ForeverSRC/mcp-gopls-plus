@@ -1,4 +1,4 @@
-module github.com/hloiseau/mcp-gopls/v2
+module github.com/ForeverSRC/mcp-gopls-plus
 
 go 1.25.0
 

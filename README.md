@@ -1,9 +1,8 @@
-# mcp-gopls – MCP server for Go (gopls)
+# mcp-gopls-plus – MCP server for Go (gopls)
 <!-- markdownlint-disable MD022 MD012 MD029 MD060 -->
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 ![Go version](https://img.shields.io/badge/Go-1.25+-informational)
-[![CI](https://github.com/hloiseau/mcp-gopls/actions/workflows/ci.yml/badge.svg)](https://github.com/hloiseau/mcp-gopls/actions)
-[![Docker Image](https://img.shields.io/badge/ghcr.io-hloiseau/mcp--gopls-blue)](https://ghcr.io/hloiseau/mcp-gopls)
+[![CI](https://github.com/ForeverSRC/mcp-gopls-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/ForeverSRC/mcp-gopls-plus/actions)
 
 A Model Context Protocol (MCP) server that lets AI assistants use Go’s LSP (`gopls`) for navigation, diagnostics, testing, coverage, and more.
 
@@ -90,18 +89,12 @@ If you mostly want read-only/introspective tools (diagnostics, symbol search, re
 │   └── tools           # MCP tools exposing LSP features
 ```
 
-## Installation
-
-```bash
-go install github.com/hloiseau/mcp-gopls/v2/cmd/mcp-gopls@latest
-```
-
 ## Quick Start
 
 1. **Install** the server:
 
 ```bash
-go install github.com/hloiseau/mcp-gopls/v2/cmd/mcp-gopls@latest
+go install github.com/ForeverSRC/mcp-gopls-plus/cmd/mcp-gopls@latest
 ```
 
 2. **Verify** it's on your `$PATH`:
@@ -113,31 +106,6 @@ mcp-gopls --help
 3. **Configure** your AI client (see examples below for Cursor, Claude Desktop, or GitHub Copilot).
 
 ---
-
-## Docker / MCP Gateway
-
-If you prefer to run `mcp-gopls` in a container (for Docker MCP Gateway or other containerized setups), use the official image.
-
-### Docker run
-
-```bash
-docker run --rm -i \
-  -v /absolute/path/to/your/go/project:/workspace \
-  ghcr.io/hloiseau/mcp-gopls:latest \
-  --workspace /workspace
-```
-
-### docker-mcp.yaml
-
-Copy `docs/docker-mcp.yaml`, update the bind mount path, then run from that directory:
-
-```bash
-docker mcp gateway run
-```
-
-### Tools catalog metadata
-
-If your MCP catalog tooling requires a `toolsUrl`, use `docs/tools.json` as a static tool list.
 
 ## Detailed Client Setup
 
@@ -382,8 +350,8 @@ What does the Context.WithTimeout function do in Go?
 ## Development
 
 ```bash
-git clone https://github.com/hloiseau/mcp-gopls.git
-cd mcp-gopls
+git clone https://github.com/ForeverSRC/mcp-gopls-plus.git
+cd mcp-gopls-plus
 go mod tidy
 go test ./...
 go build ./cmd/mcp-gopls
@@ -397,30 +365,12 @@ Table-driven tests live under `pkg/tools` and CI runs via `.github/workflows/ci.
 - Workspace resources expose `resource://workspace/overview` and `resource://workspace/go.mod`
 - Prompts (`summarize_diagnostics`, `refactor_plan`) help assistants produce consistent outputs
 
-## Contributing
-
-PRs and issues are welcome!
-
-- Check [open issues](https://github.com/hloiseau/mcp-gopls/issues) or file a new one if you hit a bug or want a feature.
-- Run `go test ./...` before opening a PR.
-- For bigger changes (new tools, protocol changes), please open a design issue first so we can discuss the approach.
-
-All contributions should maintain test coverage and adhere to Go best practices. See the [Development](#development) section for setup instructions.
-
 ## Prerequisites
 
 - Go 1.25+ (tested with `go1.25.4`)
 - `gopls` installed (`go install golang.org/x/tools/gopls@latest`)
 - Optional: `govulncheck` (`go install golang.org/x/vuln/cmd/govulncheck@latest`)
 - The server forces `GOTOOLCHAIN=local` for its nested `gopls` process. If you need a different toolchain, set `GOTOOLCHAIN` in the environment before launching `mcp-gopls`.
-
-## Integration with Ollama
-
-This MCP server can be used with any tool that supports the MCP protocol. For Ollama integration:
-
-1. Make sure Ollama is running
-2. The MCP server runs independently and communicates through stdin/stdout
-3. Configure your client to use the MCP server as a tool provider
 
 ## License
 

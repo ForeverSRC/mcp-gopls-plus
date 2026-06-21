@@ -18,8 +18,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hloiseau/mcp-gopls/v2/internal/goenv"
-	"github.com/hloiseau/mcp-gopls/v2/pkg/lsp/protocol"
+	"github.com/ForeverSRC/mcp-gopls-plus/internal/goenv"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/protocol"
 )
 
 const (
