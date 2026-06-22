@@ -56,6 +56,9 @@ func (s *stubLSPClient) CodeActions(ctx context.Context, uri string, rng protoco
 func (s *stubLSPClient) WorkspaceSymbols(ctx context.Context, query string) ([]protocol.SymbolInformation, error) {
 	return nil, nil
 }
+func (s *stubLSPClient) DocumentSymbols(ctx context.Context, uri string) ([]protocol.DocumentSymbol, error) {
+	return nil, nil
+}
 func (s *stubLSPClient) OnDiagnostics(handler client.DiagnosticsHandler) func() { return func() {} }
 func (s *stubLSPClient) NotifyDidChangeWatchedFiles(ctx context.Context, changes []protocol.FileEvent) error {
 	return nil

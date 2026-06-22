@@ -26,6 +26,13 @@
     ]
   },
   {
+    "name": "file_outline",
+    "description": "List symbols (functions, types, methods) defined in a Go file. Returns name, kind, and line range for each.",
+    "arguments": [
+      {"name": "file_uri", "type": "string", "desc": "URI of the file."}
+    ]
+  },
+  {
     "name": "check_diagnostics",
     "description": "Get diagnostics for a file.",
     "arguments": [

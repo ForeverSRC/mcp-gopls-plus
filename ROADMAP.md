@@ -166,7 +166,7 @@ Go convention: `// HandleLogin authenticates the user and returns a JWT.` → `s
 - **File coherence**: when multiple chunks from the same file match, the file's top result gets a boost.
 - **Identifier stem match**: query tokens matched against split identifier stems in the chunk.
 
-### 1b. `file_outline` — file structure without reading the file
+### 1b. `file_outline` — file structure without reading the file  ✅ **Completed**
 
 **MCP tool.** Uses gopls `textDocument/documentSymbol` (already supported by the LSP client's generic `call()` method — no new client interface needed).
 
@@ -193,15 +193,17 @@ Minimal description: `"List symbols (functions, types, methods) defined in a Go 
 
 ### Tool count after Phase 1
 
+> **Status:** `file_outline` completed. `code_search` and the planned deprecations (`search_workspace_symbols`, `get_completion`) are deferred to a future iteration.
+
 | Action | Count |
 |--------|-------|
 | Current | 14 |
-| + `code_search` | 15 |
-| + `file_outline` | 16 |
-| − `search_workspace_symbols` (subsumed by `code_search`) | 15 |
-| − `get_completion` (low agent utility; LLMs are completion engines) | **14** |
+| + `file_outline` (implemented) | 15 |
+| Planned: + `code_search` | 16 |
+| Planned: − `search_workspace_symbols` | 15 |
+| Planned: − `get_completion` | **14** |
 
-Net: **14 tools** (unchanged). Two in, two out.
+Current actual count: **16 tools** (14 baseline + `file_outline` + no deprecations yet).
 
 ### Deprecation rationale
 
@@ -322,10 +324,11 @@ The ideal workflow (`code_search` → `go_to_definition` → `read specific line
 
 Every new tool increases the probability of silent tool loss. Strategy:
 
-- Phase 1: add `code_search` + `file_outline` (+2). Deprecate `search_workspace_symbols` + `get_completion` (−2). Net: 14 → 14.
-- Phase 2: add `manage_index` + `call_hierarchy` (+2). Deprecate `format_document` (−1). Net: 14 → 15.
+- Phase 1 (current progress): `file_outline` added (+1). `code_search` and the two deprecations (`search_workspace_symbols`, `get_completion`) deferred.
+  - Current count: **16 tools**. Target: ≤ 16.
+- Phase 2 (planned): add `manage_index` + `call_hierarchy` (+2). Deprecate `format_document` (−1). Net: 16 → 17.
 - Long-term target: ≤ 16 tools. If new tools are needed, old ones must be merged or removed.
-- Deprecation candidates on watch: `run_govulncheck` (orthogonal to code retrieval; trivially replaced by shell command).
+- Deprecation candidates on watch: `run_govulncheck` (orthogonal to code retrieval; trivially replaced by shell command), `get_completion`.
 
 This directly follows the 180K-line Spring Boot team's finding: 60 tools → silent loss; 12 tools → stable. Our 14–15 tools sit in the safe zone.
 
@@ -380,24 +383,25 @@ mcp-gopls-plus already exposes `resource://workspace/overview`. Extend it (or ad
 | AST-aware code chunking | None | `go/parser` + `go/ast` at func/type boundaries | — |
 | Change awareness | `fs.Watcher` (raw events) | — | SHA256 snapshot + `manage_index` incremental re-index |
 | Lightweight local search | LSP symbol search only | `code_search`: BM25 + identifier-aware tokens, < 1ms query | Persisted to disk |
-| Structured 3-layer retrieval | Implicit (symbol → def → read) | `code_search` (metadata) + `file_outline` (map) → LSP navigation | — |
+| Structured 3-layer retrieval | Implicit (symbol → def → read) | `file_outline` ✅ (structure map → LSP navigation). `code_search` (metadata) deferred. | — |
 | Call graph / deterministic relationships | `find_references` (noisy, includes non-call refs) | — | `call_hierarchy` (call-site only, incoming + outgoing) |
 | Code graph (full) | `module_graph` (inter-module) | — | — (Phase 3) |
 | LSP precise navigation | Complete | Unchanged | Unchanged |
 
 ## Appendix B: Comparison with Semble & Claude Context
 
-| Dimension | Semble | Claude Context | mcp-gopls-plus (post Phase 1) |
-|-----------|--------|----------------|-------------------------------|
-| Scope | All languages | All languages | **Go only** |
-| Chunking | AST (Chonkie) | AST (Tree-sitter) | **AST (go/parser — first-class stdlib)** |
-| Search | Model2Vec + BM25 + RRF | Dense vector + BM25 + Milvus | **BM25 + identifier-aware tokens** |
-| Result format | Code snippets | Code snippets | **Metadata only (map, not territory)** |
-| External deps | Python + uv | Node.js + API keys + cloud DB | **Zero (Go stdlib only)** |
-| Index time | ~250ms | Network-bound | **< 100ms** (pure Go, in-memory) |
-| Query time | ~1.5ms | Network-bound | **< 1ms** (in-memory map lookup) |
-| MCP tools | `search`, `find_related` | 4 tools | `code_search` + 14 LSP tools |
-| Unique strength | Fastest all-lang semantic search | Scalable team infra | **End-to-end Go: fuzzy search → LSP navigate → test → refactor** |
+| Dimension | Semble | Claude Context | mcp-gopls-plus (current) | mcp-gopls-plus (post Phase 1) |
+|-----------|--------|----------------|--------------------------|-------------------------------|
+| Scope | All languages | All languages | **Go only** | **Go only** |
+| Chunking | AST (Chonkie) | AST (Tree-sitter) | — (gopls handles this) | **AST (go/parser — first-class stdlib)** |
+| Search | Model2Vec + BM25 + RRF | Dense vector + BM25 + Milvus | **gopls symbol search** | **BM25 + identifier-aware tokens** |
+| Result format | Code snippets | Code snippets | Metadata (existing tools) | **Metadata only (map, not territory)** |
+| External deps | Python + uv | Node.js + API keys + cloud DB | **Zero (Go stdlib only)** | **Zero (Go stdlib only)** |
+| File outline | ❌ not exposed | ❌ not exposed | **✅ `file_outline` tool** | **✅ `file_outline` tool** |
+| Index time | ~250ms | Network-bound | Instant (gopls-based) | **< 100ms** (pure Go, in-memory) |
+| Query time | ~1.5ms | Network-bound | — | **< 1ms** (in-memory map lookup) |
+| MCP tools | `search`, `find_related` | 4 tools | 15 LSP + 1 outline tools | `code_search` + 14 LSP tools |
+| Unique strength | Fastest all-lang semantic search | Scalable team infra | **Go LSP + file outline** | **End-to-end Go: fuzzy search → LSP navigate → test → refactor** |
 
 ## Appendix C: Key raw-material references
 

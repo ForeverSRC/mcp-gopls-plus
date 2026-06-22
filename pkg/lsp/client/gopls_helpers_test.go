@@ -193,6 +193,53 @@ func TestNavigationAndRefactorHelpers(t *testing.T) {
 				}
 			},
 		},
+		{
+			name:         "document symbols",
+			expectMethod: "textDocument/documentSymbol",
+			call: func(c *GoplsClient) (any, error) {
+				return c.DocumentSymbols(context.Background(), uri)
+			},
+			response: []protocol.DocumentSymbol{
+				{
+					Name: "Handler",
+					Kind: 12,
+					Range: protocol.Range{
+						Start: protocol.Position{Line: 10, Character: 0},
+						End:   protocol.Position{Line: 30, Character: 0},
+					},
+					SelectionRange: protocol.Range{
+						Start: protocol.Position{Line: 10, Character: 5},
+						End:   protocol.Position{Line: 10, Character: 12},
+					},
+					Children: []protocol.DocumentSymbol{
+						{
+							Name: "ServeHTTP",
+							Kind: 6,
+							Range: protocol.Range{
+								Start: protocol.Position{Line: 15, Character: 0},
+								End:   protocol.Position{Line: 25, Character: 0},
+							},
+						},
+					},
+				},
+			},
+			checkParams: func(t *testing.T, params any) {
+				t.Helper()
+				if p, ok := params.(protocol.DocumentSymbolParams); !ok || p.TextDocument.URI != uri {
+					t.Fatalf("unexpected document symbol params %#v", params)
+				}
+			},
+			verify: func(t *testing.T, result any) {
+				t.Helper()
+				syms := result.([]protocol.DocumentSymbol)
+				if len(syms) != 1 || syms[0].Name != "Handler" {
+					t.Fatalf("unexpected symbols %#v", syms)
+				}
+				if len(syms[0].Children) != 1 || syms[0].Children[0].Name != "ServeHTTP" {
+					t.Fatalf("unexpected children %#v", syms[0].Children)
+				}
+			},
+		},
 	}
 
 	for _, tc := range cases {
