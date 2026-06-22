@@ -404,6 +404,10 @@ func (c *GoplsClient) Initialize(ctx context.Context) error {
 				"references": map[string]any{
 					"dynamicRegistration": true,
 				},
+				"documentSymbol": map[string]any{
+					"dynamicRegistration":               true,
+					"hierarchicalDocumentSymbolSupport": true,
+				},
 				"publishDiagnostics": map[string]any{
 					"relatedInformation": true,
 				},
@@ -860,6 +864,22 @@ func (c *GoplsClient) WorkspaceSymbols(ctx context.Context, query string) ([]pro
 	var symbols []protocol.SymbolInformation
 	if err := resp.ParseResult(&symbols); err != nil {
 		return nil, fmt.Errorf("decode workspace symbols: %w", err)
+	}
+	return symbols, nil
+}
+
+func (c *GoplsClient) DocumentSymbols(ctx context.Context, uri string) ([]protocol.DocumentSymbol, error) {
+	params := protocol.DocumentSymbolParams{
+		TextDocument: protocol.TextDocumentIdentifier{URI: uri},
+	}
+	resp, err := c.invoke(ctx, "textDocument/documentSymbol", params)
+	if err != nil {
+		return nil, err
+	}
+
+	var symbols []protocol.DocumentSymbol
+	if err := resp.ParseResult(&symbols); err != nil {
+		return nil, fmt.Errorf("decode document symbols: %w", err)
 	}
 	return symbols, nil
 }

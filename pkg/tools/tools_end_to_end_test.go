@@ -27,6 +27,16 @@ func TestToolsEndToEnd(t *testing.T) {
 		rename:      &protocol.WorkspaceEdit{Changes: map[string][]protocol.TextEdit{"file://tmp/main.go": {{NewText: "name"}}}},
 		actions:     []protocol.CodeAction{{Title: "Fix"}},
 		symbols:     []protocol.SymbolInformation{{Name: "Symbol"}},
+		documentSymbols: []protocol.DocumentSymbol{
+			{
+				Name: "Handler",
+				Kind: 12,
+				Range: protocol.Range{
+					Start: protocol.Position{Line: 10, Character: 0},
+					End:   protocol.Position{Line: 30, Character: 0},
+				},
+			},
+		},
 	}
 
 	tools := NewLSPTools(fakeClient, "/workspace")
@@ -197,6 +207,28 @@ func TestToolsEndToEnd(t *testing.T) {
 		t.Fatal("tool find_implementations not registered")
 	}
 
+	assertTool("file_outline", map[string]any{
+		"file_uri": "file://tmp/main.go",
+	}, func(t *testing.T, content map[string]any) {
+		symbols, ok := content["symbols"].([]any)
+		if !ok || len(symbols) != 1 {
+			t.Fatalf("unexpected outline symbols %#v", content)
+		}
+		sym := symbols[0].(map[string]any)
+		if sym["name"] != "Handler" {
+			t.Fatalf("unexpected symbol name %#v", sym)
+		}
+		if sym["kind"] != "function" {
+			t.Fatalf("unexpected symbol kind %#v", sym)
+		}
+		if sym["start_line"] != float64(11) {
+			t.Fatalf("unexpected start_line %#v", sym)
+		}
+		if sym["end_line"] != float64(31) {
+			t.Fatalf("unexpected end_line %#v", sym)
+		}
+	})
+
 	if len(fakeRunner.calls) == 0 {
 		t.Fatal("expected command runner to be invoked")
 	}
@@ -225,15 +257,16 @@ func (f *fakeCommandRunner) Run(t *LSPTools, ctx context.Context, srv *mcpsrv.MC
 }
 
 type fakeLSPClient struct {
-	definitions []protocol.Location
-	references  []protocol.Location
-	diagnostics []protocol.Diagnostic
-	hover       string
-	completions []string
-	edits       []protocol.TextEdit
-	rename      *protocol.WorkspaceEdit
-	actions     []protocol.CodeAction
-	symbols     []protocol.SymbolInformation
+	definitions     []protocol.Location
+	references      []protocol.Location
+	diagnostics     []protocol.Diagnostic
+	hover           string
+	completions     []string
+	edits           []protocol.TextEdit
+	rename          *protocol.WorkspaceEdit
+	actions         []protocol.CodeAction
+	symbols         []protocol.SymbolInformation
+	documentSymbols []protocol.DocumentSymbol
 }
 
 func (f *fakeLSPClient) Initialize(ctx context.Context) error { return nil }
@@ -267,6 +300,9 @@ func (f *fakeLSPClient) CodeActions(ctx context.Context, uri string, rng protoco
 }
 func (f *fakeLSPClient) WorkspaceSymbols(ctx context.Context, query string) ([]protocol.SymbolInformation, error) {
 	return f.symbols, nil
+}
+func (f *fakeLSPClient) DocumentSymbols(ctx context.Context, uri string) ([]protocol.DocumentSymbol, error) {
+	return f.documentSymbols, nil
 }
 func (f *fakeLSPClient) OnDiagnostics(handler client.DiagnosticsHandler) func() { return func() {} }
 func (f *fakeLSPClient) NotifyDidChangeWatchedFiles(ctx context.Context, changes []protocol.FileEvent) error {

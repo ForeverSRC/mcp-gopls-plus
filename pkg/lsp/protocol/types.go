@@ -160,3 +160,21 @@ type SymbolInformation struct {
 	Kind     int      `json:"kind"`
 	Location Location `json:"location"`
 }
+
+// DocumentSymbol represents a symbol in the document tree, with optional children.
+// This is the hierarchical alternative to SymbolInformation (LSP 3.17).
+type DocumentSymbol struct {
+	Name           string           `json:"name"`
+	Detail         string           `json:"detail,omitempty"`
+	Kind           int              `json:"kind"`
+	Tags           []int            `json:"tags,omitempty"`
+	Deprecated     bool             `json:"deprecated,omitempty"`
+	Range          Range            `json:"range"`
+	SelectionRange Range            `json:"selectionRange"`
+	Children       []DocumentSymbol `json:"children,omitempty"`
+}
+
+// DocumentSymbolParams parameters for textDocument/documentSymbol.
+type DocumentSymbolParams struct {
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+}
