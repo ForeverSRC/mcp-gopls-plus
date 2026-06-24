@@ -26,6 +26,15 @@
     ]
   },
   {
+    "name": "code_search",
+    "description": "Find code by natural language or identifier query.",
+    "arguments": [
+      {"name": "query", "type": "string", "desc": "Natural language or identifier query."},
+      {"name": "top_k", "type": "number", "desc": "Maximum number of results to return. Defaults to 10."},
+      {"name": "include_tests", "type": "boolean", "desc": "Whether to include test files in results. Defaults to false."}
+    ]
+  },
+  {
     "name": "file_outline",
     "description": "List symbols (functions, types, methods) defined in a Go file. Returns name, kind, and line range for each.",
     "arguments": [

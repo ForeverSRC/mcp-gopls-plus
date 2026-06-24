@@ -17,6 +17,7 @@ import (
 
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/protocol"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search"
 )
 
 type stubLSPClient struct {
@@ -64,6 +65,30 @@ func (s *stubLSPClient) NotifyDidChangeWatchedFiles(ctx context.Context, changes
 	return nil
 }
 
+type recordingLSPNotifier struct {
+	calls int
+	err   error
+}
+
+func (n *recordingLSPNotifier) NotifyDidChangeWatchedFiles(context.Context, []protocol.FileEvent) error {
+	n.calls++
+	return n.err
+}
+
+type recordingChangeAwareSearcher struct {
+	calls int
+	err   error
+}
+
+func (s *recordingChangeAwareSearcher) Search(context.Context, string, search.Options) ([]search.Result, error) {
+	return nil, nil
+}
+
+func (s *recordingChangeAwareSearcher) ApplyFileChanges(context.Context, []protocol.FileEvent) error {
+	s.calls++
+	return s.err
+}
+
 func TestResourceDefinitions(t *testing.T) {
 	tmp := t.TempDir()
 	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte("module example.com/test"), 0o644); err != nil {
@@ -109,8 +134,8 @@ func TestResourceDefinitions(t *testing.T) {
 	var summary struct {
 		Root string `json:"root"`
 	}
-	if err := json.Unmarshal([]byte(text), &summary); err != nil {
-		t.Fatalf("unmarshal overview: %v", err)
+	if unmarshalErr := json.Unmarshal([]byte(text), &summary); unmarshalErr != nil {
+		t.Fatalf("unmarshal overview: %v", unmarshalErr)
 	}
 	if !strings.HasSuffix(summary.Root, filepath.Base(tmp)) {
 		t.Fatalf("expected root suffix %s, got %s", filepath.Base(tmp), summary.Root)
@@ -192,6 +217,9 @@ func TestRegisterToolsUsesFactory(t *testing.T) {
 	if !fake.setResetFunc {
 		t.Fatal("expected reset func to be set")
 	}
+	if !fake.setSearcher {
+		t.Fatal("expected searcher to be set")
+	}
 	if fake.registeredWith != svc.server {
 		t.Fatal("tools not registered with server")
 	}
@@ -263,6 +291,61 @@ func TestServiceStartInvokesStdioServer(t *testing.T) {
 	}
 }
 
+func TestNewServiceReturnsSearcherError(t *testing.T) {
+	origSearcher := newSearcher
+	t.Cleanup(func() { newSearcher = origSearcher })
+
+	newSearcher = func(string) (search.Searcher, error) {
+		return nil, errors.New("index build failed")
+	}
+
+	_, err := NewService(Config{WorkspaceDir: t.TempDir()})
+	if err == nil || err.Error() != "build code search index: index build failed" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestCombinedFSNotifierNotifiesBothLSPAndSearcher(t *testing.T) {
+	lspNotifier := &recordingLSPNotifier{}
+	searcher := &recordingChangeAwareSearcher{}
+
+	err := combinedFSNotifier{
+		lsp:      lspNotifier,
+		searcher: searcher,
+	}.NotifyDidChangeWatchedFiles(context.Background(), []protocol.FileEvent{{
+		URI:  "file:///workspace/foo.go",
+		Type: protocol.FileChanged,
+	}})
+	if err != nil {
+		t.Fatalf("notify changes: %v", err)
+	}
+	if lspNotifier.calls != 1 {
+		t.Fatalf("expected lsp notifier to be called once, got %d", lspNotifier.calls)
+	}
+	if searcher.calls != 1 {
+		t.Fatalf("expected searcher to be called once, got %d", searcher.calls)
+	}
+}
+
+func TestCombinedFSNotifierStopsOnLSPError(t *testing.T) {
+	lspNotifier := &recordingLSPNotifier{err: errors.New("lsp failed")}
+	searcher := &recordingChangeAwareSearcher{}
+
+	err := combinedFSNotifier{
+		lsp:      lspNotifier,
+		searcher: searcher,
+	}.NotifyDidChangeWatchedFiles(context.Background(), []protocol.FileEvent{{
+		URI:  "file:///workspace/foo.go",
+		Type: protocol.FileChanged,
+	}})
+	if err == nil || err.Error() != "lsp failed" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if searcher.calls != 0 {
+		t.Fatalf("expected searcher not to be called after lsp failure, got %d", searcher.calls)
+	}
+}
+
 func TestConfigNormalize(t *testing.T) {
 	tmp := t.TempDir()
 	cfg := Config{
@@ -310,6 +393,7 @@ func TestBuildWorkspaceSummary(t *testing.T) {
 type fakeToolset struct {
 	setClientGetter bool
 	setResetFunc    bool
+	setSearcher     bool
 	registerCalled  bool
 	registeredWith  *mcpsrv.MCPServer
 }
@@ -320,6 +404,10 @@ func (f *fakeToolset) SetClientGetter(func() client.LSPClient) {
 
 func (f *fakeToolset) SetResetFunc(func(error) bool) {
 	f.setResetFunc = true
+}
+
+func (f *fakeToolset) SetSearcher(search.Searcher) {
+	f.setSearcher = true
 }
 
 func (f *fakeToolset) Register(s *mcpsrv.MCPServer) {

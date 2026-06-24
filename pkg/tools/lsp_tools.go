@@ -18,6 +18,7 @@ import (
 
 	"github.com/ForeverSRC/mcp-gopls-plus/internal/goenv"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search"
 )
 
 type commandRunner func(*LSPTools, context.Context, *server.MCPServer, mcp.ProgressToken, string, ...string) (commandResult, error)
@@ -26,6 +27,7 @@ type LSPTools struct {
 	client        client.LSPClient
 	clientGetter  func() client.LSPClient
 	resetFunc     func(error) bool
+	searcher      search.Searcher
 	workspaceDir  string
 	commandRunner commandRunner
 }
@@ -46,6 +48,10 @@ func (t *LSPTools) SetClientGetter(getter func() client.LSPClient) {
 
 func (t *LSPTools) SetResetFunc(resetFunc func(error) bool) {
 	t.resetFunc = resetFunc
+}
+
+func (t *LSPTools) SetSearcher(searcher search.Searcher) {
+	t.searcher = searcher
 }
 
 func (t *LSPTools) getClient() client.LSPClient {
@@ -135,6 +141,33 @@ func getIntArg(args map[string]any, key string) (int, error) {
 	default:
 		return 0, fmt.Errorf("%s must be a number", key)
 	}
+}
+
+func getOptionalIntArg(args map[string]any, key string, defaultValue int) (int, error) {
+	val, ok := args[key]
+	if !ok || val == nil {
+		return defaultValue, nil
+	}
+	switch v := val.(type) {
+	case float64:
+		return int(v), nil
+	case int:
+		return v, nil
+	default:
+		return 0, fmt.Errorf("%s must be a number", key)
+	}
+}
+
+func getOptionalBoolArg(args map[string]any, key string, defaultValue bool) (bool, error) {
+	val, ok := args[key]
+	if !ok || val == nil {
+		return defaultValue, nil
+	}
+	boolVal, ok := val.(bool)
+	if !ok {
+		return false, fmt.Errorf("%s must be a boolean", key)
+	}
+	return boolVal, nil
 }
 
 // isPositionError checks if an LSP error is related to an invalid position.
