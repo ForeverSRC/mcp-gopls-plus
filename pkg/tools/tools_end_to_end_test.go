@@ -11,6 +11,7 @@ import (
 
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/protocol"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search"
 )
 
 func TestToolsEndToEnd(t *testing.T) {
@@ -40,6 +41,17 @@ func TestToolsEndToEnd(t *testing.T) {
 	}
 
 	tools := NewLSPTools(fakeClient, "/workspace")
+	tools.SetSearcher(fakeSearcher{
+		results: []search.Result{{
+			File:      "pkg/auth/handler.go",
+			Symbol:    "HandleLogin",
+			Kind:      "function",
+			StartLine: 42,
+			EndLine:   88,
+			Score:     0.92,
+			Summary:   "Handle user login and return a JWT.",
+		}},
+	})
 	fakeRunner := &fakeCommandRunner{
 		results: map[string]commandResult{
 			"go test ./... -cover":                  {Command: []string{"go", "test", "./...", "-cover"}, Stdout: "ok"},
@@ -184,6 +196,19 @@ func TestToolsEndToEnd(t *testing.T) {
 		}
 	})
 
+	assertTool("code_search", map[string]any{
+		"query": "authentication handling",
+	}, func(t *testing.T, content map[string]any) {
+		results, ok := content["results"].([]any)
+		if !ok || len(results) != 1 {
+			t.Fatalf("unexpected code search results %#v", content)
+		}
+		item := results[0].(map[string]any)
+		if item["symbol"] != "HandleLogin" {
+			t.Fatalf("unexpected code search result %#v", item)
+		}
+	})
+
 	assertTool("run_go_mod_tidy", map[string]any{}, func(t *testing.T, content map[string]any) {
 		if _, ok := content["result"]; !ok {
 			t.Fatalf("expected tidy result")
@@ -254,6 +279,14 @@ func (f *fakeCommandRunner) Run(t *LSPTools, ctx context.Context, srv *mcpsrv.MC
 		return res, nil
 	}
 	return commandResult{Command: command}, nil
+}
+
+type fakeSearcher struct {
+	results []search.Result
+}
+
+func (f fakeSearcher) Search(ctx context.Context, query string, opts search.Options) ([]search.Result, error) {
+	return f.results, nil
 }
 
 type fakeLSPClient struct {

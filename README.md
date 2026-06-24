@@ -34,7 +34,7 @@ The server communicates with [gopls](https://github.com/golang/tools/tree/master
 
 - **Configurable runtime**: `--workspace`, `--gopls-path`, `--log-level`, `--rpc-timeout`, and `--shutdown-timeout` flags + env vars (`MCP_GOPLS_*`)
 - **Structured logging**: Text/JSON logging with slog and optional file output
-- **Extended LSP surface**: navigation, diagnostics, formatting, rename, code actions, hover, completion, workspace symbols, file outline
+- **Extended LSP surface**: navigation, diagnostics, formatting, rename, code actions, hover, completion, workspace symbols, file outline, code search
 - **Test & tooling helpers**: coverage analysis, `go test`, `go mod tidy`, `govulncheck`, `go mod graph`
 - **MCP extras**: resources (`resource://workspace/overview`, `resource://workspace/go.mod`) and prompts (`summarize_diagnostics`, `refactor_plan`)
 - **Progress streaming**: long-running commands emit `notifications/progress` events so clients can surface status updates
@@ -142,6 +142,7 @@ mcp-gopls-plus --help
 | `go_to_definition` | “Use `go_to_definition` on `pkg/server/server.go:42`.” |
 | `find_references` | “Ask the tool for references to `ServeStdio`.” |
 | `find_implementations` | “Find all types implementing `LSPClient` interface.” |
+| `code_search` | “Search for how authentication is handled in this project.” |
 | `file_outline` | “Show the outline of `pkg/tools/outline.go`.” |
 | `check_diagnostics` | “Request diagnostics for `cmd/mcp-gopls-plus/main.go`.” |
 | `get_hover_info` | “Call `get_hover_info` on `pkg/tools/workspace.go:88`.” |
@@ -246,6 +247,7 @@ The inspector lets you call each tool/resource/prompt manually, which is handy f
 | `go_to_definition` | Navigate to the definition of a symbol |
 | `find_references` | List all references for a symbol |
 | `find_implementations` | Find all types implementing a given interface |
+| `code_search` | Find code by natural language or identifier query |
 | `file_outline` | List symbols (functions, types, methods) defined in a Go file |
 | `check_diagnostics` | Fetch cached diagnostics for a file |
 | `get_hover_info` | Return hover markdown for a symbol |

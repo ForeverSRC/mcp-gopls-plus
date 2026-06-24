@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -14,10 +15,71 @@ import (
 var lookupGovulncheckBinary = exec.LookPath
 
 func (t *LSPTools) registerWorkspaceTools(s *server.MCPServer) {
+	t.registerCodeSearch(s)
 	t.registerWorkspaceSymbols(s)
 	t.registerGoModTidy(s)
 	t.registerGovulncheck(s)
 	t.registerModuleGraph(s)
+}
+
+func (t *LSPTools) registerCodeSearch(s *server.MCPServer) {
+	tool := mcp.NewTool("code_search",
+		mcp.WithDescription("Find code by natural language or identifier query. Returns file, symbol, line range, score, and summary."),
+		mcp.WithTitleAnnotation("Code Search"),
+		mcp.WithReadOnlyHintAnnotation(true),
+		mcp.WithString("query",
+			mcp.Required(),
+			mcp.Description("Natural language or identifier query"),
+		),
+		mcp.WithNumber("top_k",
+			mcp.Description("Maximum number of results to return"),
+		),
+		mcp.WithBoolean("include_tests",
+			mcp.Description("Whether to include test files in results"),
+		),
+	)
+
+	s.AddTool(tool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args, err := getArguments(request)
+		if err != nil {
+			return nil, err
+		}
+
+		query, err := getStringArg(args, "query")
+		if err != nil {
+			return nil, err
+		}
+		topK, err := getOptionalIntArg(args, "top_k", 10)
+		if err != nil {
+			return nil, err
+		}
+		includeTests, err := getOptionalBoolArg(args, "include_tests", false)
+		if err != nil {
+			return nil, err
+		}
+		if t.searcher == nil {
+			return nil, fmt.Errorf("code search index not initialized")
+		}
+
+		results, err := t.searcher.Search(ctx, query, search.Options{
+			TopK:         topK,
+			IncludeTests: includeTests,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("code search failed: %w", err)
+		}
+
+		result, err := mcp.NewToolResultJSON(map[string]any{
+			"query":         query,
+			"top_k":         topK,
+			"include_tests": includeTests,
+			"results":       results,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
+	})
 }
 
 func (t *LSPTools) registerWorkspaceSymbols(s *server.MCPServer) {

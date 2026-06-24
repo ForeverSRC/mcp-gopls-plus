@@ -14,6 +14,8 @@ import (
 
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/fs"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/lsp/client"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search"
+	"github.com/ForeverSRC/mcp-gopls-plus/pkg/search/memory"
 	"github.com/ForeverSRC/mcp-gopls-plus/pkg/tools"
 )
 
@@ -26,6 +28,10 @@ var (
 		return tools.NewLSPTools(lsp, workspace)
 	}
 
+	newSearcher = func(workspace string) (search.Searcher, error) {
+		return memory.Build(context.Background(), workspace)
+	}
+
 	newStdioServer = func(s *mcpsrv.MCPServer) stdioServer {
 		return &stdioServerAdapter{inner: mcpsrv.NewStdioServer(s)}
 	}
@@ -34,6 +40,7 @@ var (
 type toolRegistrar interface {
 	SetClientGetter(func() client.LSPClient)
 	SetResetFunc(func(error) bool)
+	SetSearcher(search.Searcher)
 	Register(*mcpsrv.MCPServer)
 }
 
@@ -58,6 +65,7 @@ type Service struct {
 
 	lspClient   client.LSPClient
 	clientMutex sync.RWMutex
+	searcher    search.Searcher
 
 	fsWatcher *fs.Watcher
 }
@@ -133,6 +141,7 @@ func (s *Service) RegisterTools() {
 	lspTools.SetResetFunc(func(err error) bool {
 		return s.resetLSPClientIfNeeded(err)
 	})
+	lspTools.SetSearcher(s.searcher)
 	lspTools.Register(s.server)
 }
 
@@ -143,7 +152,7 @@ func (s *Service) Start(ctx context.Context) error {
 
 	s.RegisterTools()
 
-	stdioServer := newStdioServer(s.server)
+	srv := newStdioServer(s.server)
 
 	s.logger.Info("serving MCP over stdio")
 
@@ -151,7 +160,7 @@ func (s *Service) Start(ctx context.Context) error {
 		go s.fsWatcher.Run(ctx)
 	}
 
-	if err := stdioServer.Listen(ctx, os.Stdin, os.Stdout); err != nil && !errors.Is(err, context.Canceled) {
+	if err := srv.Listen(ctx, os.Stdin, os.Stdout); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}
 	return nil

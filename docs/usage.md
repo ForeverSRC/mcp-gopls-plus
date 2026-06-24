@@ -40,8 +40,9 @@ Environment variables:
 
 ## Recommended workflow
 
-1. `check_diagnostics` > feed diagnostics into `summarize_diagnostics` prompt.
-2. Read `resource://workspace/overview` to understand layout.
-3. Run `run_go_test` or `analyze_coverage` to validate fixes.
-4. Use `format_document` / `rename_symbol` / `list_code_actions` for refactors.
-5. Finish with `run_go_mod_tidy`, `run_govulncheck`, and `module_graph` to keep dependencies healthy.
+1. Read `resource://workspace/overview` to understand layout.
+2. Start with `code_search` for fuzzy or natural-language code discovery.
+3. Use `file_outline`, `go_to_definition`, and `find_references` to narrow to precise symbols and line ranges.
+4. Use `check_diagnostics` > feed diagnostics into `summarize_diagnostics` prompt when fixing problems.
+5. Run `run_go_test` or `analyze_coverage` to validate fixes, then use `format_document` / `rename_symbol` / `list_code_actions` for refactors.
+6. Finish with `run_go_mod_tidy`, `run_govulncheck`, and `module_graph` to keep dependencies healthy.
